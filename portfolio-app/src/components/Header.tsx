@@ -30,7 +30,7 @@ export function Header() {
     <header className="border-b border-border bg-header/90 sticky top-0 z-50 backdrop-blur-md">
       <div className="max-w-4xl mx-auto px-6 h-14 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
-          <span className="font-mono font-semibold text-heading text-xs">sec_dev</span>
+          <span className="font-mono font-semibold text-heading text-xs">Abdullah</span>
           <span className="text-muted font-mono text-xs">/</span>
           <span className="text-muted font-mono text-xs">portfolio</span>
         </Link>

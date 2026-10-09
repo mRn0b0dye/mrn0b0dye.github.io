@@ -14,16 +14,16 @@ export interface SiteConfig {
 }
 
 export const siteConfig: SiteConfig = {
-  name: "Penetration Tester",
-  title: "Penetration Tester | Cybersecurity | Blockchain Developer",
+  name: "Muhammad Abdullah",
+  title: "Muhammad Abdullah | Penetration Tester",
   isOpenToWork: true,
-  openToWorkText: "Open to Work / Available for Opportunities",
-  statusBadge: "TryHackMe Penetration Tester Path (eJPTv1 prep)",
+  openToWorkText: "Open to contribute",
+  statusBadge: "",
   bio: "Documenting offensive security write-ups, vulnerability analysis, and smart contract development in a clean, lightweight log format.",
   avatar: "/images/avatar.png",
   socials: {
-    github: "https://github.com",
-    linkedin: "https://linkedin.com",
-    email: "your.email@gmail.com",
+    github: "https://github.com/mRn0b0dye/",
+    linkedin: "https://www.linkedin.com/in/mabdullah102004/",
+    email: "abdullahahiir@gmail.com",
   },
 };
