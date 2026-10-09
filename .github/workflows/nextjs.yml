@@ -69,7 +69,7 @@ jobs:
             ${{ runner.os }}-nextjs-${{ hashFiles('portfolio-app/package-lock.json') }}-
       - name: Install dependencies
         working-directory: portfolio-app
-        run: npm ci
+        run: npm install --no-audit --no-fund
       - name: Build with Next.js
         working-directory: portfolio-app
         run: npm run build
