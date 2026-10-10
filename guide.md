@@ -341,6 +341,26 @@ npm run dev
 
 Open http://localhost:3000 in your browser. The development server updates the page when you save a file. Press `Ctrl+C` in the terminal to stop it.
 
+## 12. Compile and make the site live on port 3000
+
+Install dependencies once, then compile the site:
+
+```bash
+cd portfolio-app
+npm install
+npm run build
+```
+
+This project uses a static export, so `npm run build` writes the compiled site to `portfolio-app/out`.
+
+To make the site available locally on port 3000, start the development server:
+
+```bash
+npm run dev -- --hostname 0.0.0.0 --port 3000
+```
+
+Open http://localhost:3000 in a browser. Keep the terminal running while the site is live, and press `Ctrl+C` to stop the server.
+
 Before publishing, run the production build:
 
 ```bash
@@ -349,7 +369,7 @@ npm run build
 
 This checks TypeScript, lint rules, and static page generation. Fix every error before pushing.
 
-## 12. Commit and push changes
+## 13. Commit and push changes
 
 From the repository root, check what changed:
 
@@ -361,7 +381,7 @@ git diff
 Stage the files you intentionally changed:
 
 ```bash
-git add GUIDE.md portfolio-app/src/config/siteConfig.ts
+git add guide.md portfolio-app/src/config/siteConfig.ts
 ```
 
 If you changed other files, include them in the same command. You can stage all changed files with:
@@ -390,7 +410,7 @@ https://mrn0b0dye.github.io/
 
 Deployment usually takes less than a few minutes. Check the **Actions** tab on GitHub if the site does not update.
 
-## 13. Recommended commit messages
+## 14. Recommended commit messages
 
 Use a short message that explains the change:
 

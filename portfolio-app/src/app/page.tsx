@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { siteConfig } from "@/config/siteConfig";
 import { writeups } from "@/data/writeups";
 import { projects } from "@/data/projects";
@@ -14,12 +15,14 @@ export default function HomePage() {
         {/* LARGE AVATAR (160px on desktop) */}
         <div className="shrink-0">
           <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-2xl overflow-hidden border-2 border-border bg-card shadow-md flex items-center justify-center relative">
-            <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-b from-slate-200 to-slate-300 dark:from-slate-800 dark:to-slate-900 text-muted">
-              <svg className="w-20 h-20 opacity-80" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-              </svg>
-              <span className="text-[10px] font-mono mt-1 opacity-75">Your Photo</span>
-            </div>
+            <Image
+              src={siteConfig.avatar}
+              alt={`${siteConfig.name} profile picture`}
+              fill
+              className="object-cover"
+              sizes="(max-width: 640px) 128px, 160px"
+              priority
+            />
           </div>
         </div>
 
@@ -29,15 +32,15 @@ export default function HomePage() {
           {siteConfig.isOpenToWork && (
             <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded border border-border bg-card text-muted font-mono text-xs">
               <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              <span className="text-heading font-medium">{siteConfig.openToWorkText}</span>
+              <span className="text-heading font-medium"><b>{siteConfig.openToWorkText}</b></span>
             </div>
           )}
 
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-heading leading-tight">
+          <h1 className="text-3xl sm:text-3xl font-bold tracking-tight text-heading leading-tight">
             {siteConfig.name}
           </h1>
 
-          <p className="text-body text-sm font-mono">Penetration Tester</p>
+          <p className="text-body text-sm font-bold font-mono">{siteConfig.title}</p>
 
           {/* SOCIAL LINKS */}
           <div className="flex items-center justify-center sm:justify-start gap-3 pt-1">
