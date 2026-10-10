@@ -7,7 +7,7 @@ import { writeups } from "@/data/writeups";
 export default function WriteupsArchivePage() {
   const [selectedTag, setSelectedTag] = useState<string>("All");
 
-  const tags = ["All", "TryHackMe", "BlockSec", "Bug Bounty", "Network", "Solidity", "API Security"];
+  const tags = ["All", "TryHackMe", "Blockchain", "Web3"];
 
   const filteredWriteups =
     selectedTag === "All"

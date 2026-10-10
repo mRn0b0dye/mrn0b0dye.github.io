@@ -89,12 +89,12 @@ export default function HomePage() {
       {/* RECENT WRITE-UPS SECTION */}
       <section id="writeups" className="space-y-4 pt-6 border-t border-border">
         <div className="flex items-center justify-between">
-          <h2 className="text-xs font-mono font-bold text-heading uppercase tracking-wider">
+          <h1 className="text-xs font-mono font-bold text-heading uppercase tracking-wider">
             Recent Write-ups
-          </h2>
-          <Link href="/writeups" className="font-mono text-xs text-accent hover:underline">
+          </h1>
+          <b><Link href="/writeups" className="font-mono text-xs text-accent hover:underline">
             View All Write-ups ({writeups.length}) →
-          </Link>
+          </Link></b>
         </div>
 
         <div className="space-y-3">
@@ -134,7 +134,7 @@ export default function HomePage() {
       {/* PROJECTS SECTION (2 CLEAN CATEGORIES) */}
       <section id="projects" className="space-y-6 pt-6 border-t border-border">
         <div className="flex items-center justify-between">
-          <h2 className="text-xs font-mono font-bold text-heading uppercase tracking-wider">Projects</h2>
+          <h1 className="text-xs font-mono font-bold text-heading uppercase tracking-wider">Projects</h1>
           <Link href="/projects" className="font-mono text-xs text-accent hover:underline">
             View All Projects →
           </Link>
