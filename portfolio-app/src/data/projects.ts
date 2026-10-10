@@ -22,7 +22,7 @@ export const projects: Project[] = [
     title: "EstateX",
     category: "blockchain",
     description: "EstateX is a decentralized Web3 real estate platform where property deeds are tokenized as ERC-721 NFTs.",
-    tech: ["solidity", "foundry", "hardhat", "EVM", "NFT", "ERC-721", "IPFS"],
+    tech: ["solidity", "foundry", "hardhat", "EVM", "ERC-721", "IPFS"],
     repoUrl: "https://github.com/mRn0b0dye/EstateX",
   },
   {
@@ -44,6 +44,6 @@ export const projects: Project[] = [
     category: "blockchain",
     description: "A secure, private, and decentralized voting application built with React, Solidity, and Hardhat.",
     tech: ["solidity", "hardhat", "EVM"],
-    repoUrl: "",
+    repoUrl: "https://github.com/mRn0b0dye/decentralized-voting-dapp",
   }
 ];
