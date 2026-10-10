@@ -14,7 +14,7 @@ export default function HomePage() {
       <section id="about" className="flex flex-col sm:flex-row items-center sm:items-start gap-8 pt-2">
         {/* LARGE AVATAR (160px on desktop) */}
         <div className="shrink-0">
-          <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-2xl overflow-hidden border-2 border-border bg-card shadow-md flex items-center justify-center relative">
+          <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full overflow-hidden border-2 border-border bg-card shadow-md flex items-center justify-center relative">
             <Image
               src={siteConfig.avatar}
               alt={`${siteConfig.name} profile picture`}

@@ -20,7 +20,7 @@ export const siteConfig: SiteConfig = {
   openToWorkText: "Open to contribute",
   statusBadge: "",
   bio: "Documenting offensive security write-ups, vulnerability analysis, and smart contract development in a clean, lightweight log format.",
-  avatar: "/images/avatar.jpg",
+  avatar: "/images/avatar.png",
   socials: {
     github: "https://github.com/mRn0b0dye/",
     linkedin: "https://www.linkedin.com/in/mabdullah102004/",
