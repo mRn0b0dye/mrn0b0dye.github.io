@@ -27,7 +27,7 @@ export function Footer() {
           href={`mailto:${siteConfig.socials.email}`}
           className="hover:text-heading transition-colors"
         >
-          Gmail
+          Mail
         </a>
         </b>
       </div>

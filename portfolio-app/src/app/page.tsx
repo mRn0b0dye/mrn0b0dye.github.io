@@ -75,7 +75,7 @@ export default function HomePage() {
             <a
               href={`mailto:${siteConfig.socials.email}`}
               aria-label="Email"
-              title="Gmail"
+              title="Mail"
               className="text-accent hover:text-heading transition-colors"
             >
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
