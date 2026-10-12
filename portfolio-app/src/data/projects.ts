@@ -9,13 +9,13 @@ export interface Project {
 
 export const projects: Project[] = [
   // Cybersecurity Projects
-  {
-    title: "",
-    category: "cybersecurity",
-    description: "Lightweight multi-threaded TCP port scanner and service banner grabber for rapid reconnaissance.",
-    tech: ["python", "socket", "threading"],
-    repoUrl: "https://github.com",
-  },
+  // {
+  //   title: "",
+  //   category: "cybersecurity",
+  //   description: "Lightweight multi-threaded TCP port scanner and service banner grabber for rapid reconnaissance.",
+  //   tech: ["python", "socket", "threading"],
+  //   repoUrl: "https://github.com",
+  // },
 
   // Blockchain Projects
   {

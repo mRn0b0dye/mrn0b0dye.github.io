@@ -135,9 +135,9 @@ export default function HomePage() {
       <section id="projects" className="space-y-6 pt-6 border-t border-border">
         <div className="flex items-center justify-between">
           <h1 className="text-xs font-mono font-bold text-heading uppercase tracking-wider">Projects</h1>
-          <Link href="/projects" className="font-mono text-xs text-accent hover:underline">
+          <b><Link href="/projects" className="font-mono text-xs text-accent hover:underline">
             View All Projects →
-          </Link>
+          </Link></b>
         </div>
 
         {/* 1. Cybersecurity */}
@@ -145,7 +145,7 @@ export default function HomePage() {
           <div className="flex items-center gap-2 font-mono text-xs text-muted">
             <span className="text-heading font-semibold">Cybersecurity</span>
             <span>·</span>
-            <span>Tooling & Scanners</span>
+            <span>Red Teaming</span>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
