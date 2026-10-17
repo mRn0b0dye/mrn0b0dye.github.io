@@ -94,8 +94,8 @@ smb: \\> mget *</code></pre>
       <img src="/images/writeups/Proxy/bloodhound_enum.webp" alt="BloodHound Ingestion" class="rounded border border-border my-4 w-full" />
 
       <p>Uploading the zip to BloodHound reveals that <code>svc.scanner</code> has <strong>AllowedToDelegate</strong> permissions targeting <code>cifs/DC01.ctf.local</code> on the Domain Controller:</p>
-      <img src="/images/writeups/Proxy/bloodhound_enum_graph.webp" alt="BloodHound Graph" class="rounded border border-border my-4 w-full" />
-      <img src="/images/writeups/Proxy/bloodhound_enum_graph_abuse.webp" alt="BloodHound Abuse Info" class="rounded border border-border my-4 w-full" />
+      <img src="/images/writeups/Proxy/bloodhound_enum_graph.png" alt="BloodHound Graph" class="rounded border border-border my-4 max-w-md mx-auto block shadow-sm" />
+      <img src="/images/writeups/Proxy/bloodhound_enum_graph_abuse.png" alt="BloodHound Abuse Info" class="rounded border border-border my-4 max-w-md mx-auto block shadow-sm" />
 
       <h2>5. Privilege Escalation: Kerberos Constrained Delegation</h2>
       <h3>Why is Constrained Delegation Vulnerable?</h3>
