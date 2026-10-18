@@ -32,7 +32,7 @@ export const writeups: Writeup[] = [
 
       <h2>1. Reconnaissance & Port Scanning</h2>
       <p>We initiate the assessment with <strong>RustScan</strong> to rapidly discover open ports, piping them directly to Nmap for service detection:</p>
-      <pre><code>rustscan -a 10.114.168.198 -b 500 --top -- -sC -sV -Pn -oN nmap_proxy.txt</code></pre>
+      <pre><code>rustscan -a 10.114.168.198 -b 500 --top -- -sC -sV -oN Proxy</code></pre>
       
       <img src="/images/writeups/Proxy/rustscan.webp" alt="RustScan Port Discovery" class="rounded border border-border my-4 w-full" />
       <img src="/images/writeups/Proxy/rustscan-nmap.webp" alt="Nmap Service Scan" class="rounded border border-border my-4 w-full" />
