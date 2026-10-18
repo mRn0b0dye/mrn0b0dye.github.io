@@ -341,7 +341,42 @@ npm run dev
 
 Open http://localhost:3000 in your browser. The development server updates the page when you save a file. Press `Ctrl+C` in the terminal to stop it.
 
-## 12. Compile and make the site live on port 3000
+## 12. Make the project live locally on port 3000
+
+To start the project yourself on port 3000:
+
+1. Open PowerShell or a terminal in the repository root.
+2. Change into the Next.js app folder:
+
+   ```powershell
+   cd portfolio-app
+   ```
+
+3. Install dependencies if this is the first run or dependencies have changed:
+
+   ```powershell
+   npm install
+   ```
+
+4. Start the development server on port 3000:
+
+   ```powershell
+   npm run dev -- --hostname 0.0.0.0 --port 3000
+   ```
+
+5. Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+Keep the terminal open while the site is running. The page updates automatically when you save source files. Press `Ctrl+C` in that terminal to stop the server.
+
+If port 3000 is already in use, stop the other process using it or start the app on another port:
+
+```powershell
+npm run dev -- --hostname 0.0.0.0 --port 3001
+```
+
+Then open [http://localhost:3001](http://localhost:3001).
+
+## 13. Compile and make the site live on port 3000
 
 Install dependencies once, then compile the site:
 
@@ -369,7 +404,7 @@ npm run build
 
 This checks TypeScript, lint rules, and static page generation. Fix every error before pushing.
 
-## 13. Commit and push changes
+## 14. Commit and push changes
 
 From the repository root, check what changed:
 
@@ -410,7 +445,7 @@ https://mrn0b0dye.github.io/
 
 Deployment usually takes less than a few minutes. Check the **Actions** tab on GitHub if the site does not update.
 
-## 14. Recommended commit messages
+## 15. Recommended commit messages
 
 Use a short message that explains the change:
 
@@ -422,7 +457,7 @@ Remove outdated project
 Update homepage bio
 ```
 
-## 14. Troubleshooting
+## 16. Troubleshooting
 
 ### The build fails with a syntax error
 

@@ -19,7 +19,7 @@ export const writeups: Writeup[] = [
     platformTag: "TryHackMe",
     tags: ["ActiveDirectory", "AD Pentesting"],
     contentHtml: `
-      <b>Room Link: </b> <a href="https://tryhackme.com/room/proxychallenge" target="_blank" rel="noopener noreferrer">Proxy</a>
+      <b>Room Link: </b> <u><a href="https://tryhackme.com/room/proxychallenge" target="_blank" rel="noopener noreferrer">https://tryhackme.com/room/proxychallenge</a></u>
       <h2>Summary</h2>
       <p><strong>Proxy</strong> is an Active Directory machine on TryHackMe. The objective is to navigate an AD environment, intercept service credentials, and escalate to Domain Administrator through Kerberos abuse.</p>
       
