@@ -21,9 +21,22 @@ cd mrn0b0dye.github.io
 
 Install the project dependencies:
 
-```bash
-cd portfolio-app
+```powershell
+cd .\portfolio-app
 npm install
+```
+
+Important: run every `npm` command from inside `portfolio-app`. This is the folder that contains the app's `package.json`. If your terminal is at the repository root, npm will not find the correct package file. You can confirm your location before running a command:
+
+```powershell
+Get-Location
+Test-Path .\package.json
+```
+
+The second command must return `True`. If it returns `False`, run:
+
+```powershell
+cd .\portfolio-app
 ```
 
 The main files you will edit are:
@@ -330,81 +343,46 @@ portfolio-app/src/app/writeups/[slug]/page.tsx
 
 That function automatically creates pages for every write-up that remains in the data file.
 
-## 11. Preview changes locally
+## 11. Preview changes locally on port 3000
 
-From the repository root:
-
-```bash
-cd portfolio-app
-npm run dev
-```
-
-Open http://localhost:3000 in your browser. The development server updates the page when you save a file. Press `Ctrl+C` in the terminal to stop it.
-
-## 12. Make the project live locally on port 3000
-
-To start the project yourself on port 3000:
-
-1. Open PowerShell or a terminal in the repository root.
-2. Change into the Next.js app folder:
-
-   ```powershell
-   cd portfolio-app
-   ```
-
-3. Install dependencies if this is the first run or dependencies have changed:
-
-   ```powershell
-   npm install
-   ```
-
-4. Start the development server on port 3000:
-
-   ```powershell
-   npm run dev -- --hostname 0.0.0.0 --port 3000
-   ```
-
-5. Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-Keep the terminal open while the site is running. The page updates automatically when you save source files. Press `Ctrl+C` in that terminal to stop the server.
-
-If port 3000 is already in use, stop the other process using it or start the app on another port:
+Open PowerShell in the repository root (the folder containing `guide.md`), then run these commands exactly:
 
 ```powershell
-npm run dev -- --hostname 0.0.0.0 --port 3001
+cd .\portfolio-app
+if (-not (Test-Path .\package.json)) { throw "Run this command from the repository root so .\portfolio-app\package.json can be found." }
+npm install
+npm run dev -- --hostname localhost --port 3000
+```
+
+Open [http://localhost:3000](http://localhost:3000) in your browser. The development server updates the page when you save a file. Keep the terminal open while it is running and press `Ctrl+C` to stop it.
+
+If port 3000 is already in use, either stop the process currently using it or start the app on another port:
+
+```powershell
+npm run dev -- --hostname localhost --port 3001
 ```
 
 Then open [http://localhost:3001](http://localhost:3001).
 
-## 13. Compile and make the site live on port 3000
+## 12. Compile and test the production build
 
-Install dependencies once, then compile the site:
+Run this from inside `portfolio-app`:
 
-```bash
-cd portfolio-app
-npm install
+```powershell
 npm run build
 ```
 
 This project uses a static export, so `npm run build` writes the compiled site to `portfolio-app/out`.
 
-To make the site available locally on port 3000, start the development server:
+The build does not start a web server. To preview the site locally on port 3000, use the development command from the previous section:
 
-```bash
-npm run dev -- --hostname 0.0.0.0 --port 3000
+```powershell
+npm run dev -- --hostname localhost --port 3000
 ```
 
-Open http://localhost:3000 in a browser. Keep the terminal running while the site is live, and press `Ctrl+C` to stop the server.
+Open [http://localhost:3000](http://localhost:3000), keep the terminal running, and press `Ctrl+C` to stop the server. The generated `out` folder is the production artifact deployed by GitHub Pages; do not use `npm run start` for this static-export configuration.
 
-Before publishing, run the production build:
-
-```bash
-npm run build
-```
-
-This checks TypeScript, lint rules, and static page generation. Fix every error before pushing.
-
-## 14. Commit and push changes
+## 13. Commit and push changes
 
 From the repository root, check what changed:
 
@@ -445,7 +423,7 @@ https://mrn0b0dye.github.io/
 
 Deployment usually takes less than a few minutes. Check the **Actions** tab on GitHub if the site does not update.
 
-## 15. Recommended commit messages
+## 14. Recommended commit messages
 
 Use a short message that explains the change:
 
@@ -457,7 +435,32 @@ Remove outdated project
 Update homepage bio
 ```
 
-## 16. Troubleshooting
+## 15. Troubleshooting
+
+### npm says that `package.json` cannot be read or found
+
+The command was run from the repository root or another folder. The correct file is `portfolio-app/package.json`, not a root-level package file. Run:
+
+```powershell
+cd .\portfolio-app
+Get-Location
+Test-Path .\package.json
+npm install
+```
+
+`Test-Path` must return `True` before running `npm run dev`, `npm run build`, or `npm run start`.
+
+### The browser shows a blank page or a `Cannot find module './*.js'` error
+
+The `.next` development cache can become stale if `npm run build` is run while `npm run dev` is still running. Stop the development server with `Ctrl+C`, then from the repository root run:
+
+```powershell
+Remove-Item -LiteralPath .\portfolio-app\.next -Recurse -Force
+cd .\portfolio-app
+npm run dev -- --hostname localhost --port 3000
+```
+
+Do not run `npm run build` in the same terminal while the development server is active. Use a separate terminal, or stop the dev server first.
 
 ### The build fails with a syntax error
 

@@ -130,7 +130,7 @@ smb: \\> mget *</code></pre>
     date: "Oct 2026",
     readTime: "8 min",
     platformTag: "TryHackMe",
-    tags: ["ActiveDirectory", "RBCD", "Kerberos", "BloodHound", "Impacket", "PrivEsc"],
+    tags: ["ActiveDirectory", "PrivEsc"],
     contentHtml: `
       <h2>1. Scenario: Assumed Breach</h2>
       <p>The engagement begins under an assumed breach model with low-privilege domain user credentials:</p>
