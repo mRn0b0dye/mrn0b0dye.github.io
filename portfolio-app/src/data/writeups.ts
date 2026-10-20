@@ -159,7 +159,7 @@ PASS   : JSmith@IT2024</code></pre>
 
       <img src="/images/writeups/Forward/rustscan+nmap.png" alt="Nmap Service Scan" class="rounded border border-border my-4 w-full" />
 
-      <p>Using <strong>NetExec (nxc)</strong>, we authenticate as <code>j.smith</code> and generate the hosts mapping:</p>
+      <p>Using <strong>NetExec (nxc)</strong>, we authenticate as <code>j.smith</code> and generate the hosts file:</p>
       <pre><code>nxc smb 10.112.186.154 -u 'j.smith' -p 'JSmith@IT2024' --generate-hosts-file hosts</code></pre>
       <img src="/images/writeups/Forward/nxc_generat-hosts-file.png" alt="NetExec Generate Hosts" class="rounded border border-border my-4 w-full" />
 
@@ -167,7 +167,7 @@ PASS   : JSmith@IT2024</code></pre>
       <pre><code>nxc smb DC01.ctf.local -d ctf.local -u 'j.smith' -p 'JSmith@IT2024' --shares</code></pre>
       <img src="/images/writeups/Forward/nxc_smb_shares-list.png" alt="SMB Shares List" class="rounded border border-border my-4 w-full" />
 
-      <p>Connecting with <code>impacket-smbclient</code> shows that the accessible shares do not contain any actionable artifacts:</p>
+      <p>Connecting with <strong>SMB</strong> via <code>impacket-smbclient</code> shows that the accessible shares do not contain any actionable artifacts:</p>
       <pre><code>impacket-smbclient ctf.local/j.smith:'JSmith@IT2024'@ctf.local</code></pre>
       <img src="/images/writeups/Forward/impacket-smbclient_see-shares.png" alt="SMBClient Check Shares" class="rounded border border-border my-4 w-full" />
 
@@ -199,6 +199,8 @@ PASS   : JSmith@IT2024</code></pre>
       <p>We test the credentials using NetExec and authenticate as <code>t.jones</code>:</p>
       <pre><code>nxc smb DC01.ctf.local -d ctf.local -u 't.jones' -p '&lt;passwd&gt;' --shares</code></pre>
       <img src="/images/writeups/Forward/t-jones_smb_verfi.png" alt="NetExec t.jones Verification" class="rounded border border-border my-4 w-full" />
+      <p><strong>Note:</strong> <code>t.jones</code> does not have any special privileges.</p>
+
 
       <h2>4. Lateral Movement: Password Spraying</h2>
       <p>With valid credentials for <code>t.jones</code>, we spray the password across the harvested domain user list:</p>
