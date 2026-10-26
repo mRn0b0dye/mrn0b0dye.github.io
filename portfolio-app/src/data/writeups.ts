@@ -3,8 +3,9 @@
   title: string;
   excerpt: string;
   date: string;
+  publishedAt: string;
   readTime: string;
-  platformTag: "TryHackMe" | "BlockSec" | "Bug Bounty" | string;
+  platformTag: "CTF" | "BlockChain" | "Bug Bounty" | string;
   tags: string[];
   contentHtml: string;
 }
@@ -15,6 +16,7 @@ export const writeups: Writeup[] = [
     title: "TryHackMe: Proxy Walkthrough",
     excerpt: "End-to-end compromise of an Active Directory Domain Controller: anonymous SMB share discovery, NetNTLMv2 coercion with Responder, BloodHound mapping, and Kerberos Constrained Delegation exploitation.",
     date: "Oct 2026",
+    publishedAt: "2026-10-24",
     readTime: "7 min",
     platformTag: "TryHackMe",
     tags: ["ActiveDirectory", "AD Pentesting"],
@@ -128,6 +130,7 @@ smb: \\> mget *</code></pre>
     title: "TryHackMe: Forward Walkthrough",
     excerpt: "Assumed breach Active Directory assessment: RDP pivoting, KeePass vault extraction, domain password spraying, and Domain Controller compromise via Resource-Based Constrained Delegation (RBCD).",
     date: "Oct 2026",
+    publishedAt: "2026-10-25",
     readTime: "8 min",
     platformTag: "TryHackMe",
     tags: ["ActiveDirectory", "AD Pentesting"],
@@ -260,6 +263,7 @@ PASS   : JSmith@IT2024</code></pre>
     title: "TryHackMe: Dead Drop Walkthrough",
     excerpt: "End-to-end compromise of an internal Active Directory domain via DMZ web application: SQL injection bypass, reverse shell foothold, shadow hash cracking, APK credential extraction, Chisel pivoting, and PsExec Domain Controller takeover.",
     date: "Oct 2026",
+    publishedAt: "2026-10-26",
     readTime: "8 min",
     platformTag: "TryHackMe",
     tags: ["ActiveDirectory", "AD Pentesting", "Pivoting", "Chisel"],

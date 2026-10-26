@@ -4,6 +4,10 @@ import { siteConfig } from "@/config/siteConfig";
 import { writeups } from "@/data/writeups";
 import { projects } from "@/data/projects";
 
+const recentWriteups = [...writeups]
+  .sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt))
+  .slice(0, 3);
+
 export default function HomePage() {
   const cyberProjects = projects.filter((p) => p.category === "cybersecurity");
   const blockchainProjects = projects.filter((p) => p.category === "blockchain");
@@ -98,7 +102,7 @@ export default function HomePage() {
         </div>
 
         <div className="space-y-3">
-          {writeups.map((w) => (
+          {recentWriteups.map((w) => (
             <Link
               key={w.slug}
               href={`/writeups/${w.slug}`}
